@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Create a RFE or bug for Labs apps</title>
+<script src="http://code.jquery.com/jquery-1.7.1.min.js"></script>
+<script src="https://api.trello.com/1/client.js?key=a524a6637b9a25f6bb4023b880877abb"></script>
+</head>
+<body>
+<h1>Request a new app, a new feature, or report a bug</h1>
+<table border="0">
+    <tr>
+        <td><strong>Title:</strong></td>
+        <td><input id='title' type="text" name="title"></td>
+    </tr>
+    <tr>
+        <td><strong>Description:</strong></td>
+        <td><input id='desc' type="text" name="desc"></td>
+    </tr>
+    <tr>
+        <td><strong>Type:</strong></td>
+        <td>
+             <input type="radio" name="type" value="app">New app
+            <input type="radio" name="type" value="enhancement">Enhancement
+            <input type="radio" name="type" value="bug">Bug</td>
+    </tr>
+    <tr>
+        <td><strong>App URL:</strong></td>
+        <td><input id='appurl' type="text" name="appurl"></td>
+    </tr>
+    <tr>
+        <td><strong>Your email:</strong></td>
+        <td><input id='email' type="text" name="email"></td>
+    </tr>
+</table>
+<button type="button" onclick="createCard()">Submit</button>
+<script>
+    var authenticationSuccess = function() { console.log("Successful authentication"); };
+    var authenticationFailure = function() { console.log("Failed authentication"); };
+    Trello.authorize({
+    type: 'popup',
+    name: 'Dong\'s Hello trello',
+    scope: {
+        read: 'true',
+        write: 'true' },
+        expiration: 'never',
+        success: authenticationSuccess,
+        error: authenticationFailure
+    });
+    
+    function createCard(){
+        var myList = '583fd1bb4977c3dde3f7c4b6';
+        var myLabelApp = '583fd19f84e677fd36904247';
+        var myLabelBug = '583fd19f84e677fd36904246';
+        var myLabelEnhancement = '583fd19f84e677fd36904249';
+        var title = document.getElementById('title').value;
+        if (title === ""){
+            return ;
+        }
+        var desc = document.getElementById('desc').value + '\n' 
+            + '**App URL:** ' + document.getElementById('appurl').value + '\n'
+            + "**Email:**" + document.getElementById('email').value;
+    
+        var type = $('input[name="type"]:checked').val();
+
+        var creationSuccess = function(data) {
+            console.log('Card created successfully. Data returned:');
+        };
+      
+        var newCard = {
+            name: title, 
+            desc: desc,
+            // Place this card at the top of our list 
+            idList: myList,
+            pos: 'top',
+            idLabels: myLabelApp
+        };
+        if ( type === 'bug' ){
+            newCard.idLabels = myLabelBug;
+        }else if( type === 'enhancement'){
+             newCard.idLabels = myLabelEnhancement;
+        }
+
+        Trello.post('/cards/', newCard, creationSuccess);
+    }
+</script>
+
+</body>
+</html>
